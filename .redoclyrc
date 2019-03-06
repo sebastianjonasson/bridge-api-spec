@@ -1,0 +1,8 @@
+specFileName: /home/cbass/git/tz_jeeves_integration/docs.yaml
+apiTitle: Bridge api spec
+splitSpec: false
+codeSamples: true
+swaggerUI: true
+travis: true
+repo: TimeZynk/bridge-api-spec
+oasVersion: 3.0.0
