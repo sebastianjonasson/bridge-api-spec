@@ -1,3 +1,5 @@
+**Warning:** This api is experimental and might be changed at any time  
+
 # Bridge api spec OpenAPI Specification
 [![Build Status](https://travis-ci.com/TimeZynk/bridge-api-spec.svg?branch=master)](https://travis-ci.com/TimeZynk/bridge-api-spec)
 ## Steps to finish
