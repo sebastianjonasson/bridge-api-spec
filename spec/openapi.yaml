@@ -260,6 +260,7 @@ components:
         - source-id
         - entity-id
         - registry-id
+        - sync-id
         - field-mapping
 
     FieldSettings:
