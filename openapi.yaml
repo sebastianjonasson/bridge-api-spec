@@ -251,7 +251,7 @@ components:
         - source-id
         - entity-id
         - registry-id
-        - sync-id
+        - sync-interval
         - field-mapping
     FieldSettings:
       properties:
