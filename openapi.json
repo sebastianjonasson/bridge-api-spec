@@ -352,6 +352,10 @@
             "format": "ObjectId",
             "description": "Id of the Timezynk registry to map fields."
           },
+          "sync-interval": {
+            "type": "integer",
+            "description": "Duration of the sync interval entered in ms."
+          },
           "field-mapping": {
             "type": "array",
             "description": "list of field mapping",
