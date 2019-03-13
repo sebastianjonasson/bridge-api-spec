@@ -279,18 +279,6 @@
           "timestamp-key": {
             "type": "string",
             "description": "Identifies a timestamp field which will be used to calculate the most recent updated synced entry."
-          },
-          "last-sync": {
-            "type": "integer",
-            "format": "timestamp",
-            "description": "Timestamp of the latest sync.",
-            "readOnly": true
-          },
-          "last-update": {
-            "type": "integer",
-            "format": "timestamp",
-            "description": "Timestamp of the latest updated entry",
-            "readOnly": true
           }
         },
         "required": [
@@ -354,6 +342,7 @@
           },
           "sync-interval": {
             "type": "integer",
+            "format": "int32",
             "description": "Duration of the sync interval entered in ms."
           },
           "field-mapping": {
@@ -362,6 +351,18 @@
             "items": {
               "$ref": "#/components/schemas/FieldSettings"
             }
+          },
+          "last-sync": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp in ms of the latest sync.",
+            "readOnly": true
+          },
+          "last-update": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp in of the latest updated entry",
+            "readOnly": true
           }
         },
         "required": [
