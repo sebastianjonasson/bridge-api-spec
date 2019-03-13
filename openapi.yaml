@@ -278,3 +278,8 @@ components:
           type: integer
           format: int64
           description: Duration of the sync interval entered in ms.
+      required:
+        - entity-id
+        - last-sync
+        - last-update
+        - sync-interval
