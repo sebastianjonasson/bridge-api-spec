@@ -282,13 +282,13 @@
           },
           "last-sync": {
             "type": "integer",
-            "format": "int32",
+            "format": "int64",
             "description": "Timestamp in ms of the latest sync.",
             "readOnly": true
           },
           "last-update": {
             "type": "integer",
-            "format": "int32",
+            "format": "int64",
             "description": "Timestamp in of the latest updated entry",
             "readOnly": true
           }
@@ -354,7 +354,7 @@
           },
           "sync-interval": {
             "type": "integer",
-            "format": "int32",
+            "format": "int64",
             "description": "Duration of the sync interval entered in ms."
           },
           "field-mapping": {
