@@ -64,17 +64,8 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: object
-                  properties:
-                    entity-id:
-                      type: string
-                    last-sync:
-                      type: number
-                      format: timestamp
-                    last-update:
-                      type: number
-                      format: timestamp
+                  items:
+                    $ref: "#/components/schemas/SynchronizationState"
         '401':
           description: Unauthorized.
         '500':
@@ -280,4 +271,24 @@ components:
         - entity-field-id
         - registry-field-id
         - static-field
+
+    SynchronizationState:
+      properties:
+        entity-id:
+          type: string
+          description: Id of the entity.
+        last-sync:
+          type: integer
+          format: int64
+          description: Timestamp in ms of the latest sync.
+        last-update:
+          type: integer
+          format: int64
+          description: Timestamp in of the latest updated entry
+        sync-interval:
+          type: integer
+          format: int64
+          description: Duration of the sync interval entered in ms.
+
+
 
