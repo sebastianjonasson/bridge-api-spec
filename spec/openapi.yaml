@@ -263,14 +263,9 @@ components:
         registry-field-id:
           type: string
           description: Id of the Timezynk registry field to map.
-        static-field: 
-          type: boolean
-          description: Set true if this field is a static registry field
-          default: false
       required:
         - entity-field-id
         - registry-field-id
-        - static-field
 
     SynchronizationState:
       properties:
