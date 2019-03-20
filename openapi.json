@@ -214,32 +214,10 @@
         ]
       },
       "DataSink": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "id of the source"
-          },
-          "name": {
-            "type": "string",
-            "description": "name of the source"
-          },
-          "company-id": {
-            "type": "string",
-            "description": "id of the company that owns this data"
-          },
-          "entities": {
-            "type": "array",
-            "description": "list of available entities",
-            "items": {
-              "$ref": "#/components/schemas/Entity"
-            }
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DataSource"
           }
-        },
-        "required": [
-          "id",
-          "name",
-          "company-id",
-          "entities"
         ]
       },
       "Entity": {
