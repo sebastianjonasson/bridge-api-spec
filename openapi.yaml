@@ -207,10 +207,10 @@ components:
         entity-id:
           type: string
           description: Id of the entity id to map fields.
-        registry-id:
+        collection-id:
           type: string
           format: ObjectId
-          description: Id of the Timezynk registry to map fields.
+          description: Id of the Timezynk collection to map fields. E.g. a registry id or invoices
         sync-interval:
           type: integer
           format: int64
@@ -224,7 +224,7 @@ components:
         - company-id
         - source-id
         - entity-id
-        - registry-id
+        - collection-id
         - sync-interval
         - field-mapping
     FieldSettings:
@@ -232,12 +232,12 @@ components:
         entity-field-id:
           type: string
           description: Id of the entity field to map.
-        registry-field-id:
+        collection-field-id:
           type: string
-          description: Id of the Timezynk registry field to map.
+          description: Id of the Timezynk collection field to map.
       required:
         - entity-field-id
-        - registry-field-id
+        - collection-field-id
     SynchronizationState:
       properties:
         entity-id:
