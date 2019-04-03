@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Timezynk integration bridge API
-  version: 0.0.2
+  version: 0.1.0
 tags:
   - name: Source
     description: Synk data from a data source to a Timezynk registry.
@@ -248,9 +248,8 @@ components:
           format: int64
           description: Timestamp in ms of the latest sync.
         last-update:
-          type: integer
-          format: int64
-          description: Timestamp in of the latest updated entry
+          type: string
+          description: Token the client can use to determine the last synchronized updates
         sync-interval:
           type: integer
           format: int64
