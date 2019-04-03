@@ -1,0 +1,261 @@
+openapi: 3.0.0
+info:
+  title: Timezynk integration bridge API
+  version: 0.1.0
+tags:
+  - name: Source
+    description: Synk data from a data source to a Timezynk registry.
+  - name: Sink
+    description: Synk data from a Timezynk registry to a data sink.
+paths:
+  /data-sources:
+    get:
+      summary: List registered datasources
+      tags:
+        - Source
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSource'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Unexpected error.
+    post:
+      summary: Register a data source
+      tags:
+        - Source
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSource'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSource'
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '409':
+          description: Conflict. A data source with the provided id is already existing.
+        '500':
+          description: Unexpected error.
+  '/data-sources/{dataSourceId}/synchronization-state':
+    get:
+      summary: Lists synchronization status for your data sources
+      tags:
+        - Source
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SynchronizationState'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Unexpected error.
+    parameters:
+      - name: dataSourceId
+        description: Id of the data source
+        required: true
+        in: path
+        schema:
+          type: string
+  '/data-sources/{dataSourceId}/entities/{entityId}/changes':
+    post:
+      summary: Sync changes from data source
+      tags:
+        - Source
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/DataSource'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSource'
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: unexpected error.
+    parameters:
+      - name: dataSourceId
+        description: Id of the data source
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: entityId
+        description: Id of the entity
+        required: true
+        in: path
+        schema:
+          type: string
+components:
+  schemas:
+    DataSource:
+      properties:
+        id:
+          type: string
+          description: id of the source
+        name:
+          type: string
+          description: name of the source
+        company-id:
+          type: string
+          description: id of the company that owns this data
+        entities:
+          type: array
+          description: list of available entities
+          items:
+            $ref: '#/components/schemas/Entity'
+      required:
+        - id
+        - name
+        - company-id
+        - entities
+    DataSink:
+      allOf:
+        - $ref: '#/components/schemas/DataSource'
+    Entity:
+      properties:
+        id:
+          type: string
+          description: id of the entity
+        name:
+          type: string
+          description: title of the entity
+        fields:
+          type: array
+          description: list of available entities
+          items:
+            $ref: '#/components/schemas/Field'
+        field-key:
+          type: string
+          description: Identifies a unique field which will be used as key (id) for the entity rows.
+        timestamp-key:
+          type: string
+          description: Identifies a timestamp field which will be used to calculate the most recent updated synced entry.
+        last-sync:
+          type: integer
+          format: int64
+          description: Timestamp in ms of the latest sync.
+          readOnly: true
+        last-update:
+          type: integer
+          format: int64
+          description: Timestamp in of the latest updated entry
+          readOnly: true
+      required:
+        - id
+        - name
+        - fields
+        - field-key
+        - timestamp-key
+    Field:
+      properties:
+        id:
+          type: string
+          description: id of the field
+        name:
+          type: string
+          description: title of the field
+        type:
+          type: string
+          enum:
+            - string
+            - number
+            - boolean
+          description: the value json data type
+        required:
+          type: boolean
+          description: indicates if this field is required
+          default: true
+      required:
+        - id
+        - name
+        - type
+        - required
+    EntitySettings:
+      properties:
+        company-id:
+          type: string
+          description: id of the company that owns this data
+        source-id:
+          type: string
+          description: Id of the source which contains the entity.
+        entity-id:
+          type: string
+          description: Id of the entity id to map fields.
+        collection-id:
+          type: string
+          format: ObjectId
+          description: Id of the Timezynk collection to map fields. E.g. a registry id or invoices
+        sync-interval:
+          type: integer
+          format: int64
+          description: Duration of the sync interval entered in ms.
+        field-mapping:
+          type: array
+          description: list of field mapping
+          items:
+            $ref: '#/components/schemas/FieldSettings'
+      required:
+        - company-id
+        - source-id
+        - entity-id
+        - collection-id
+        - sync-interval
+        - field-mapping
+    FieldSettings:
+      properties:
+        entity-field-id:
+          type: string
+          description: Id of the entity field to map.
+        collection-field-id:
+          type: string
+          description: Id of the Timezynk collection field to map.
+      required:
+        - entity-field-id
+        - collection-field-id
+    SynchronizationState:
+      properties:
+        entity-id:
+          type: string
+          description: Id of the entity.
+        last-sync:
+          type: integer
+          format: int64
+          description: Timestamp in ms of the latest sync.
+        last-update:
+          type: string
+          description: Token the client can use to determine the last synchronized updates
+        sync-interval:
+          type: integer
+          format: int64
+          description: Duration of the sync interval entered in ms.
+      required:
+        - entity-id
+        - last-sync
+        - last-update
+        - sync-interval
