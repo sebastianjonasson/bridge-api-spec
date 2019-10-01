@@ -195,6 +195,9 @@ components:
           type: string
           enum: [string, number, boolean]
           description: the value json data type
+        format:
+          type: string
+          description: how to value should be formatted
         required:
           type: boolean
           description: indicates if this field is required
