@@ -2,7 +2,7 @@ openapi: "3.0.0"
 info:
   title: Timezynk integration bridge API
   description: API for synchronizing and mapping data from and to Timezynk. Oauth2 authentication, require permission level manager or api-client with scope write:company. Info about authentication [https://developer.timezynk.com](https://developer.timezynk.com/#section/Authentication)
-  version: 0.1.2
+  version: 0.1.3
 
 tags:
   - name: Data source
@@ -264,8 +264,10 @@ paths:
       requestBody:
         content:
           application/json:
+            
             schema:
-              $ref: "#/components/schemas/EntityNextSync/properties/meta"
+              type: string
+              description: Field to store relevant meta for the next synchronization. E.g. for a data source you might want to store a timestamp, and for a data sink, you might want to store the Link header returned in the most recent GET /entities/{entityId}/changes response.
               
       responses:
         '200':
