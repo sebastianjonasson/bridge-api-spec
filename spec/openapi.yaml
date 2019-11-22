@@ -1,7 +1,8 @@
 openapi: "3.0.0"
 info:
   title: Timezynk integration bridge API
-  version: 0.1.1
+  description: API for synchronizing and mapping data from and to Timezynk. Oauth2 authentication, require permission level manager or api-client with scope write:company. Info about authentication [https://developer.timezynk.com](https://developer.timezynk.com/#section/Authentication)
+  version: 0.1.2
 
 tags:
   - name: Data source
@@ -117,47 +118,6 @@ paths:
     parameters:
     - name: dataSourceId
       description: Id of the data source
-      required: true
-      in: path
-      schema:
-        type: string
-
-  /data-sources/{dataSourceId}/entities/{entityId}/changes:
-    post:
-      summary: Sync changes from data source
-      tags:
-        - Source
-
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/DataSource"
-
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DataSource"
-        '400':
-          description: Bad Request. Data provided in request body is invalid.
-        '401':
-          description: Unauthorized.
-        '500':
-          description: unexpected error.
-    parameters:
-    - name: dataSourceId
-      description: Id of the data source
-      required: true
-      in: path
-      schema:
-        type: string
-    - name: entityId
-      description: Id of the entity
       required: true
       in: path
       schema:
@@ -288,13 +248,41 @@ paths:
           description: Unauthorized.
         '500':
           description: unexpected error.
-    parameters:
-    - name: entityId
-      description: Id of the entity
-      required: true
-      in: path
-      schema:
-        type: string
+      parameters:
+      - name: entityId
+        description: Id of the entity
+        required: true
+        in: path
+        schema:
+          type: string
+    put:
+      summary: Next sync
+      description: This endpoint acts as a confirmation for a successful synchronization. When called, it will record the current timestamp, and use to calculate when next synchronization should occur.
+      tags:
+        - Entity
+  
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntityNextSync/properties/meta"
+              
+      responses:
+        '200':
+          description: Success.
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: unexpected error.
+      parameters:
+      - name: entityId
+        description: Id of the entity
+        required: true
+        in: path
+        schema:
+          type: string
 
 components:
   schemas:
@@ -308,6 +296,9 @@ components:
         name:
           type: string
           description: name of the source
+        vendor:
+          type: string
+          description: id of the system to integrate with Timezynk.
         company-id:
           type: string
           description: id of the company that owns this data
@@ -346,16 +337,6 @@ components:
         timestamp-key:
           type: string
           description: Identifies a timestamp field which will be used to calculate the most recent updated synced entry.
-        last-sync:
-          type: integer
-          format: int64
-          description: Timestamp in ms of the latest sync.
-          readOnly: true
-        last-update:
-          type: integer
-          format: int64
-          description: Timestamp in of the latest updated entry
-          readOnly: true
       required:
         - id
         - name
@@ -427,9 +408,9 @@ components:
 
     EntityNextSync:
       properties:
-        url:
+        meta:
           type: string
-          description: Resource identifier.
+          description: Field to store relevant meta for the next synchronization. E.g. for a data source you might want to store a timestamp, and for a data sink, you might want to store the Link header returned in the most recent GET /entities/{entityId}/changes response.
         next-sync:
           type: number
           format:  timestamp
@@ -456,18 +437,14 @@ components:
           type: integer
           format: int64
           description: Timestamp in ms of the latest sync.
-        last-update:
-          type: string
-          description: Token the client can use to determine the last synchronized updates
+        last-successful:
+          type: integer
+          format: int64
+          description: Timestamp in ms of the latest successful sync.
         sync-interval:
           type: integer
           format: int64
           description: Duration of the sync interval entered in ms.
-      required:
-        - entity-id
-        - last-sync
-        - last-update
-        - sync-interval
 
 
 
