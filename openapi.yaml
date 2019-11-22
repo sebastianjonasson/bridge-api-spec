@@ -1,18 +1,19 @@
 openapi: 3.0.0
 info:
   title: Timezynk integration bridge API
-  version: 0.1.1
+  description: 'API for synchronizing and mapping data from and to Timezynk. Oauth2 authentication, require permission level manager or api-client with scope write:company. Info about authentication [https://developer.timezynk.com](https://developer.timezynk.com/#section/Authentication)'
+  version: 0.1.2
 tags:
-  - name: Source
+  - name: Data source
     description: Synk data from a data source to a Timezynk registry.
-  - name: Sink
+  - name: Data sink
     description: Synk data from a Timezynk registry to a data sink.
 paths:
   /data-sources:
     get:
       summary: List registered datasources
       tags:
-        - Source
+        - Data source
       responses:
         '200':
           description: Success.
@@ -27,7 +28,7 @@ paths:
     post:
       summary: Register a data source
       tags:
-        - Source
+        - Data source
       requestBody:
         content:
           application/json:
@@ -40,6 +41,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DataSource'
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '409':
+          description: Conflict. A data source with the provided id is already existing.
+        '500':
+          description: Unexpected error.
+  /data-sinks:
+    get:
+      summary: List registered datasources
+      tags:
+        - Data sink
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSink'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Unexpected error.
+    post:
+      summary: Register a data source
+      tags:
+        - Data sink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataSink'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSink'
         '400':
           description: Bad Request. Data provided in request body is invalid.
         '401':
@@ -73,11 +114,79 @@ paths:
         in: path
         schema:
           type: string
-  '/data-sources/{dataSourceId}/entities/{entityId}/changes':
+  /entities:
+    get:
+      summary: List entities
+      tags:
+        - Entity
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitySettings'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Unexpected error.
+  '/entities/{entityId}':
+    put:
+      summary: Update entity
+      tags:
+        - Entity
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitySettings'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Unexpected error.
+    parameters:
+      - name: entityId
+        description: Id of the entity
+        required: true
+        in: path
+        schema:
+          type: string
+  '/entities/{entityId}/changes':
+    get:
+      summary: Sync changes from data source
+      tags:
+        - Entity
+      responses:
+        '200':
+          description: Success.
+          headers:
+            Link:
+              description: Url of the next batch of items
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSource'
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: unexpected error.
+      parameters:
+        - name: entityId
+          description: Id of the entity
+          required: true
+          in: path
+          schema:
+            type: string
     post:
       summary: Sync changes from data source
       tags:
-        - Source
+        - Entity
       requestBody:
         content:
           application/json:
@@ -99,18 +208,63 @@ paths:
         '500':
           description: unexpected error.
     parameters:
-      - name: dataSourceId
-        description: Id of the data source
-        required: true
-        in: path
-        schema:
-          type: string
       - name: entityId
         description: Id of the entity
         required: true
         in: path
         schema:
           type: string
+  '/entities/{entityId}/next-sync':
+    get:
+      summary: Next sync
+      tags:
+        - Entity
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityNextSync'
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: unexpected error.
+      parameters:
+        - name: entityId
+          description: Id of the entity
+          required: true
+          in: path
+          schema:
+            type: string
+    put:
+      summary: Next sync
+      description: 'This endpoint acts as a confirmation for a successful synchronization. When called, it will record the current timestamp, and use to calculate when next synchronization should occur.'
+      tags:
+        - Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityNextSync/properties/meta'
+      responses:
+        '200':
+          description: Success.
+        '400':
+          description: Bad Request. Data provided in request body is invalid.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: unexpected error.
+      parameters:
+        - name: entityId
+          description: Id of the entity
+          required: true
+          in: path
+          schema:
+            type: string
 components:
   schemas:
     DataSource:
@@ -118,21 +272,25 @@ components:
         id:
           type: string
           description: id of the source
+          format: ObjectId
+          readOnly: true
         name:
           type: string
           description: name of the source
+        vendor:
+          type: string
+          description: id of the system to integrate with Timezynk.
         company-id:
           type: string
           description: id of the company that owns this data
+          readOnly: true
         entities:
           type: array
           description: list of available entities
           items:
             $ref: '#/components/schemas/Entity'
       required:
-        - id
         - name
-        - company-id
         - entities
     DataSink:
       allOf:
@@ -141,7 +299,9 @@ components:
       properties:
         id:
           type: string
-          description: id of the entity
+          description: 'id of the entity,'
+          format: ObjectId
+          readOnly: true
         name:
           type: string
           description: title of the entity
@@ -156,16 +316,6 @@ components:
         timestamp-key:
           type: string
           description: Identifies a timestamp field which will be used to calculate the most recent updated synced entry.
-        last-sync:
-          type: integer
-          format: int64
-          description: Timestamp in ms of the latest sync.
-          readOnly: true
-        last-update:
-          type: integer
-          format: int64
-          description: Timestamp in of the latest updated entry
-          readOnly: true
       required:
         - id
         - name
@@ -176,7 +326,7 @@ components:
       properties:
         id:
           type: string
-          description: id of the field
+          description: id representing the field name from your dataset.
         name:
           type: string
           description: title of the field
@@ -201,15 +351,21 @@ components:
         - required
     EntitySettings:
       properties:
+        id:
+          type: string
+          description: Id of the entity.
+          format: ObjectId
+          readOnly: true
         company-id:
           type: string
-          description: id of the company that owns this data
+          description: id of the company that owns this data.
+          format: ObjectId
+          readOnly: true
         source-id:
           type: string
           description: Id of the source which contains the entity.
-        entity-id:
-          type: string
-          description: Id of the entity id to map fields.
+          format: ObjectId
+          readOnly: true
         collection-id:
           type: string
           format: ObjectId
@@ -224,12 +380,20 @@ components:
           items:
             $ref: '#/components/schemas/FieldSettings'
       required:
-        - company-id
         - source-id
         - entity-id
         - collection-id
         - sync-interval
         - field-mapping
+    EntityNextSync:
+      properties:
+        meta:
+          type: string
+          description: 'Field to store relevant meta for the next synchronization. E.g. for a data source you might want to store a timestamp, and for a data sink, you might want to store the Link header returned in the most recent GET /entities/{entityId}/changes response.'
+        next-sync:
+          type: number
+          format: timestamp
+          description: Timestamp of when next synchronization should occur.
     FieldSettings:
       properties:
         entity-field-id:
@@ -250,15 +414,11 @@ components:
           type: integer
           format: int64
           description: Timestamp in ms of the latest sync.
-        last-update:
-          type: string
-          description: Token the client can use to determine the last synchronized updates
+        last-successful:
+          type: integer
+          format: int64
+          description: Timestamp in ms of the latest successful sync.
         sync-interval:
           type: integer
           format: int64
           description: Duration of the sync interval entered in ms.
-      required:
-        - entity-id
-        - last-sync
-        - last-update
-        - sync-interval
