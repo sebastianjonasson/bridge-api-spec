@@ -1,4 +1,4 @@
-openapi: "3.0.3"
+openapi: "3.0.2"
 info:
   title: Timezynk integration bridge API
   description: The purpose of the Bridge API is to simplify the integration process by keeping track of synchronization state and performing data mapping of a foreign data source. Oauth2 authentication required. Require permission level manager or api-client with scope write:company. Info about authentication [https://developer.timezynk.com](https://developer.timezynk.com/#section/Authentication).

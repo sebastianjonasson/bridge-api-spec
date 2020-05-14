@@ -8,6 +8,7 @@
 - [Reference Documentation (ReDoc)](https://timezynk.github.io/bridge-api-spec/)
 - [SwaggerUI](https://timezynk.github.io/bridge-api-spec/swagger-ui/)
 - OpenAPI Raw Files: [JSON](https://timezynk.github.io/bridge-api-spec/openapi.json) [YAML](https://timezynk.github.io/bridge-api-spec/openapi.yaml)
+- [Insomnia Workspace](https://timezynk.github.io/bridge-api-spec/insomnia-workspace.json)
 
 **Warning:** All above links are updated only after Travis CI finishes deployment
 
@@ -30,3 +31,6 @@ Validates the spec.
 
 #### `npm run gh-pages`
 Deploys docs to GitHub Pages. You don't need to run it manually if you have Travis CI configured.
+
+### Insomnia workspace
+Download and import the [Insomnia Workspace](https://timezynk.github.io/bridge-api-spec/insomnia-workspace.json) file. Use the OpenAPI env environment.

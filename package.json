@@ -2,12 +2,14 @@
   "name": "bridge-api-spec",
   "version": "0.1.5",
   "dependencies": {
-    "swagger-repo": "^2.0.0-rc.11"
+    "swagger-repo": "^2.0.0-rc.11",
+    "insomnia-workspace-generator": "0.0.1"
   },
   "private": true,
   "scripts": {
     "start": "swagger-repo serve",
-    "build": "swagger-repo build -o web_deploy",
+    "build": "swagger-repo build -o web_deploy && npm run insomnia-workspace",
+    "insomnia-workspace": "gen-insomnia-workspace ./web_deploy/openapi.yaml ./web_deploy/insomnia-workspace.json",
     "test": "swagger-repo validate",
     "gh-pages": "swagger-repo gh-pages"
   }
