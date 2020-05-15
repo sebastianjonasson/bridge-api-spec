@@ -96,8 +96,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DataSink"
-                
+              $ref: "#/components/schemas/DataSource"
       responses:
         '200':
           description: Success.
@@ -136,6 +135,11 @@ paths:
       summary: Update entity
       tags:
         - Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntitySettings"
       responses:
         '200':
           description: Success.
@@ -171,7 +175,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DataSource"
+                type: array
+                items:
+                  type: object
+                example: [{
+                  "userId": "john327871",
+                  "userFullName": "John Doe"
+                }]
         '400':
           description: Bad Request. Data provided in request body is invalid.
         '401':
@@ -191,12 +201,17 @@ paths:
         - Entity
 
       requestBody:
+        description: Request body should include raw objects from your data source. Object fields will be mapped according to your entity settings.
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/DataSource"
+                type: object
+              example: [{
+                "userId": "john327871",
+                "userFullName": "John Doe"
+              }]
 
       responses:
         '200':
@@ -258,6 +273,7 @@ paths:
             schema:
               type: string
               description: Field to store relevant meta for the next synchronization. E.g. for a data source you might want to store a timestamp, and for a data sink, you might want to store the Link header returned in the most recent GET /entities/{entityId}/changes response.
+            example: "meta to access next chunk of resources"
               
       responses:
         '200':
@@ -280,12 +296,41 @@ components:
   securitySchemes:
     default:
       type: oauth2
+      scheme: bearer
       flows: 
         clientCredentials:
           tokenUrl: https://api.timezynk.com/api/signup/v1/token
           scopes:
             write:company: modify company data in your account
-            read:company: read company data 
+            read:company: read company data
+            
+  examples:
+    DataSource:
+      summary: test
+      description: test
+      value: {
+        "id": "5ebe80a9ace5266d71404677",
+        "name": "The integration name",
+        "vendor": "INTEGRATION_VENDOR_ID",
+        "company-id": "5ebe80f945f4a90b920fcdd0",
+        "entities": [{
+          "id": "5ebe886ac3a4cd4b84e4bec3",
+          "name": "Users",
+          "timestamp-key": "entity-timestamp-key",
+          "field-key": "entity-primary-key",
+          "fields": [{
+            "id": "userId",
+            "name": "userId",
+            "type": "string",
+            "required": true,
+          }, {
+            "id": "userFullName",
+            "name": "Fullname",
+            "type": "string",
+            "required": false
+          }]
+        }]
+      }
 
   schemas:
     DataSource:
@@ -310,6 +355,29 @@ components:
           description: list of available entities
           items:
             $ref: "#/components/schemas/Entity"
+      example: {
+        "id": "5ebe80a9ace5266d71404677",
+        "name": "The integration name",
+        "vendor": "INTEGRATION_VENDOR_ID",
+        "company-id": "5ebe80f945f4a90b920fcdd0",
+        "entities": [{
+          "id": "5ebe886ac3a4cd4b84e4bec3",
+          "name": "Users",
+          "timestamp-key": "entity-timestamp-key",
+          "field-key": "entity-primary-key",
+          "fields": [{
+            "id": "userId",
+            "name": "userId",
+            "type": "string",
+            "required": true,
+          }, {
+            "id": "userFullName",
+            "name": "Fullname",
+            "type": "string",
+            "required": false
+          }]
+        }]
+      }
       required:
         - id
         - vendor
@@ -404,6 +472,14 @@ components:
           description: list of field mapping
           items:
             $ref: "#/components/schemas/FieldSettings"
+      example: {
+        "collection-id": "5ebe99dd5d84395654f79fa1",
+        "sync-interval": 300000,
+        "field-mapping": [{
+          "collection-field-id": "username",
+          "entity-field-id": "userId"
+        }]
+      }
       required:
         - id
         - company-id
@@ -421,6 +497,10 @@ components:
           type: number
           format:  timestamp
           description: Timestamp of when next synchronization should occur.
+      example: {
+        "next-sync": 1589550160182,
+        "meta": "meta to access next chunk of resources"
+      }
 
     FieldSettings:
       properties:
